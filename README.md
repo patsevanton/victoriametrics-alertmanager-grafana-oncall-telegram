@@ -1,2 +1,43 @@
 # victoriametrics-alertmanager-grafana-oncall-telegram
-A complete example of an alerting pipeline using VictoriaMetrics stack (with vmalert), Alertmanager, Grafana OnCall, and Telegram integration for seamless alert notifications.
+
+1. Введение
+   - Краткое описание статьи
+   - Зачем нужен мониторинг и оповещение
+
+2. Общая схема прохождения алерта
+   - Архитектура решения
+   - Визуальная схема (диаграмма прохождения алерта)
+
+3. Prometheus и настройка alert rule
+   - Обзор Prometheus
+   - Пример создания правила алерта
+
+4. VMAlert: обработка и маршрутизация алертов
+   - Что такое VMAlert
+   - Конфигурация интеграции с Prometheus
+
+5. Alertmanager: управление алертами и маршрутизация
+   - Основные возможности Alertmanager
+   - Пример конфигурации для отправки в OnCall
+
+6. Интеграция Grafana OnCall с Alertmanager
+   - Обзор Grafana OnCall
+   - Подключение источника алертов
+   - Маршрутизация оповещений
+
+7. Настройка Telegram-оповещений в Grafana OnCall
+   - Создание канала в Telegram
+   - Подключение Telegram к OnCall
+   - Проверка доставки алертов
+
+8. Реальный сценарий прохождения алерта (сквозной пример)
+   - Триггер алерта
+   - Прослеживание пути алерта по всей цепочке до Telegram
+
+9. Заключение
+   - Плюсы использования Grafana OnCall
+   - Возможные улучшения и расширения
+
+10. Приложения
+    - Полные примеры конфигураций
+    - Ссылки на официальную документацию
