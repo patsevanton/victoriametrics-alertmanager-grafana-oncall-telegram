@@ -1,0 +1,20 @@
+grafana:
+  plugins:
+    - victoriametrics-logs-datasource
+  ingress:
+    ingressClassName: nginx
+    enabled: true
+    hosts:
+      - grafana.apatsev.org.ru
+defaultDatasources:
+  extra:
+    - name: victoriametrics-logs
+      access: proxy
+      type: victoriametrics-logs-datasource
+      url: http://victorialogs-victoria-logs-single-server.victorialogs.svc.cluster.local:9428
+      jsonData:
+        maxLines: 1000
+      version: 1
+kube-state-metrics:
+  metricLabelsAllowlist:
+    - pods=[*]
