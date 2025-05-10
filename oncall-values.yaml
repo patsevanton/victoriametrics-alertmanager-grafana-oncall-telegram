@@ -4,3 +4,5 @@ ingress-nginx:
   enabled: false
 cert-manager:
   enabled: false
+externalGrafana:
+  url: grafana.apatsev.org.ru
