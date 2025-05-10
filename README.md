@@ -134,11 +134,7 @@ receivers:
 настройках Grafana OnCall для вашей службы. Опция `send_resolved` позволяет уведомлять OnCall также о том, что 
 алерт был устранён.
 
-## Интеграция Grafana OnCall с Alertmanager
-
-
 ### Подключение источника алертов
-
 Для интеграции Grafana OnCall c системой мониторинга, построенной на базе Prometheus и VictoriaMetrics, необходимо 
 корректно связать цепочку генерации и доставки алертов:  
 Prometheus генерирует alert согласно заданным правилам и отправляет их в компонент vmalert (часть VictoriaMetrics), 
