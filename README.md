@@ -90,7 +90,7 @@ terraform apply
 ```shell
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install release-oncall grafana/oncall \
+helm upgrade --install oncall grafana/oncall \
     --namespace oncall \
     --create-namespace \
     --values oncall-values.yaml
