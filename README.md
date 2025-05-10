@@ -199,3 +199,8 @@ helm upgrade --install \
     release-oncall \
     grafana/oncall
 ```
+
+get password
+```shell
+kubectl get secret --namespace default release-oncall-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
