@@ -196,11 +196,11 @@ helm upgrade --install \
     --set base_url=oncall.apatsev.org.ru \
     --set grafana."grafana\.ini".server.domain=oncall.apatsev.org.ru \
     --set ingress-nginx.controller.service.loadBalancerIP="158.160.34.198" \
-    release-oncall \
+    helm-testing \
     grafana/oncall
 ```
 
 get password
 ```shell
-kubectl get secret --namespace default release-oncall-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret --namespace default helm-testing-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
