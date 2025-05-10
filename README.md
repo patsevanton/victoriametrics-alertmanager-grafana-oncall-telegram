@@ -197,7 +197,8 @@ helm upgrade --install \
     --set grafana."grafana\.ini".server.domain=oncall.apatsev.org.ru \
     --set ingress-nginx.controller.service.loadBalancerIP="158.160.34.198" \
     helm-testing \
-    grafana/oncall
+    grafana/oncall \
+    --version 1.15.0
 ```
 
 get password
