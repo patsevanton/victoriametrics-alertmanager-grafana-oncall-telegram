@@ -1,7 +1,6 @@
 grafana:
   plugins:
-    - name: grafana-oncall-app
-      version: v1.16.0
+    - grafana-oncall-app
   ingress:
     ingressClassName: nginx
     enabled: true
