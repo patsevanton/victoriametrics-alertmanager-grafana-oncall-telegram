@@ -75,20 +75,8 @@ groups:
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении 
 в Telegram.
 
-### Конфигурация интеграции с VictoriaMetrics
-Для того чтобы настроить интеграцию VMAlert с VictoriaMetrics, необходимо определить параметры источника данных и 
-задать соответствующие параметры для оповещения. В конфигурационном файле VMAlert (либо через переменные окружения или 
-флаги командной строки) требуется указать URL-адрес VictoriaMetrics (или другой совместимой time series базы) через 
-опцию `-datasource.url`. Далее указываются файлы или директории с alert rule'ами через параметр `-rule` или `-rule.file`.
+### Конфигурация VictoriaMetrics
 
-Для отправки алертов в Alertmanager указывается параметр `-notifier.url`, в котором прописывается адрес работающего 
-экземпляра Alertmanager. Например:
-```yaml
-vmalert
--datasource.url=http://victoria-metrics:8428
--rule=/etc/vmalert/rules/*.yml
--notifier.url=http://alertmanager:9093
-```
 
 ## Alertmanager: управление алертами и маршрутизация
 
