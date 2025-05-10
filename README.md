@@ -91,10 +91,11 @@ terraform apply
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 helm upgrade --install release-oncall grafana/oncall \
-    --set base_url=oncall.apatsev.org.ru \
     --namespace oncall \
     --create-namespace \
-    --values oncall-values.yaml
+    --set base_url=oncall.apatsev.org.ru \
+    --set ingress-nginx.enabled=false \
+    --set cert-manager.enabled=false
 ```
 
 ## Установка victoria-metrics-k8s-stack
