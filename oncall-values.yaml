@@ -1,0 +1,6 @@
+grafana:
+  enabled: false
+ingress-nginx:
+  enabled: false
+cert-manager:
+  enabled: false

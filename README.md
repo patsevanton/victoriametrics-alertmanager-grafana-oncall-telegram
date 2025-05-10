@@ -93,9 +93,7 @@ helm repo update
 helm upgrade --install release-oncall grafana/oncall \
     --namespace oncall \
     --create-namespace \
-    --set base_url=oncall.apatsev.org.ru \
-    --set ingress-nginx.enabled=false \
-    --set cert-manager.enabled=false
+    --values oncall-values.yaml
 ```
 
 ## Установка victoria-metrics-k8s-stack
