@@ -85,6 +85,19 @@ terraform init
 terraform apply
 ```
 
+## Установка OnCall
+
+```shell
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install release-oncall \
+    --set base_url=oncall.apatsev.org.ru \
+    grafana/oncall \
+    --namespace oncall \
+    --create-namespace \
+    --values oncall-values.yaml
+```
+
 ## Установка victoria-metrics-k8s-stack
 
 Добавим Helm репозиторий и установим VictoriaMetrics stack:
@@ -105,23 +118,7 @@ helm upgrade --install vmks vm/victoria-metrics-k8s-stack \
 kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | base64 --decode
 ```
 
-
-## Alertmanager: управление алертами и маршрутизация
-
-Alertmanager — это ключевой компонент в экосистеме мониторинга Prometheus, предназначенный для централизованного 
-управления поступающими алертами. Он обеспечивает маршрутизацию, группировку, подавление (silencing) и обработку 
-дубликатов алертов, а также их доставку до конечных получателей с учетом выбранных каналов и политик оповещений.
-
-### Основные возможности Alertmanager
-
-Alertmanager принимает алерты от Prometheus (или других источников, например, vmalert из VictoriaMetrics), 
-обрабатывает их в соответствии с заданными правилами и передаёт уведомления в указанные интеграции, такие как почта, 
-PagerDuty, Slack, а также специализированные сервисы для управления инцидентами — например, Grafana OnCall. 
-Среди ключевых возможностей можно выделить гибкую маршрутизацию алертов по различным критериям (например, по 
-серьезности или источнику), обеспечение отказоустойчивости за счет кластеризации, возможность устанавливать временные 
-периоды тихих часов (silence) или мьютировать одни и те же алерты, чтобы избежать избыточных уведомлений.
-
-### Пример конфигурации для отправки в OnCall
+### Описание интеграции с Alertmanager
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
 получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример конфигурации может выглядеть 
