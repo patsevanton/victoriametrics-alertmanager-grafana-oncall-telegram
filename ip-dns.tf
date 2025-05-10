@@ -19,9 +19,9 @@ resource "yandex_dns_zone" "apatsev-org-ru" {
 }
 
 # Создание DNS-записи типа A, указывающей на внешний IP
-resource "yandex_dns_recordset" "grafana" {
+resource "yandex_dns_recordset" "oncall" {
   zone_id = yandex_dns_zone.apatsev-org-ru.id       # ID зоны, к которой принадлежит запись
-  name    = "grafana.apatsev.org.ru."                # Полное имя записи (поддомен)
+  name    = "oncall.apatsev.org.ru."                # Полное имя записи (поддомен)
   type    = "A"                                     # Тип записи — A (IPv4-адрес)
   ttl     = 200                                     # Время жизни записи в секундах
   data    = [yandex_vpc_address.addr.external_ipv4_address[0].address]  # Значение — внешний IP-адрес, полученный ранее

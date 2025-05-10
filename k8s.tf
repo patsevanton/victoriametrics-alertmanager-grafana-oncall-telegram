@@ -106,20 +106,20 @@ provider "helm" {
 }
 
 # Установка ingress-nginx через Helm
-resource "helm_release" "ingress_nginx" {
-  name             = "ingress-nginx"
-  repository       = "https://kubernetes.github.io/ingress-nginx"
-  chart            = "ingress-nginx"
-  version          = "4.12.2"
-  namespace        = "ingress-nginx"
-  create_namespace = true
-  depends_on       = [yandex_kubernetes_cluster.oncall]
-
-  set {
-    name  = "controller.service.loadBalancerIP"
-    value = yandex_vpc_address.addr.external_ipv4_address[0].address  # Присвоение внешнего IP ingress-контроллеру
-  }
-}
+# resource "helm_release" "ingress_nginx" {
+#   name             = "ingress-nginx"
+#   repository       = "https://kubernetes.github.io/ingress-nginx"
+#   chart            = "ingress-nginx"
+#   version          = "4.12.2"
+#   namespace        = "ingress-nginx"
+#   create_namespace = true
+#   depends_on       = [yandex_kubernetes_cluster.oncall]
+#
+#   set {
+#     name  = "controller.service.loadBalancerIP"
+#     value = yandex_vpc_address.addr.external_ipv4_address[0].address  # Присвоение внешнего IP ingress-контроллеру
+#   }
+# }
 
 # Вывод команды для получения kubeconfig
 output "k8s_cluster_credentials_command" {

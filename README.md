@@ -189,3 +189,13 @@ receivers:
 о том, что важные события останутся без внимания — каждый инцидент быстро доходит до ответственного человека. 
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
+
+```
+helm upgrade --install \
+    --wait \
+    --set base_url=oncall.apatsev.org.ru \
+    --set grafana."grafana\.ini".server.domain=oncall.apatsev.org.ru \
+    --set ingress-nginx.controller.service.loadBalancerIP="158.160.34.198" \
+    release-oncall \
+    grafana/oncall
+```

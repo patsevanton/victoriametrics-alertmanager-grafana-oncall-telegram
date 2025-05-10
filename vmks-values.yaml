@@ -6,3 +6,15 @@ grafana:
     enabled: true
     hosts:
       - grafana.apatsev.org.ru
+  additionalDatasourceFiles:
+    grafana-oncall-app.yaml:
+      apiVersion: 1
+      apps:
+        - type: grafana-oncall-app
+          name: grafana-oncall-app
+          enabled: true
+          jsonData:
+            stackId: 5
+            orgId: 1
+            onCallApiUrl: http://oncall-engine.oncall.svc.cluster.local:8080
+            grafanaUrl: "http://grafana.apatsev.org.ru"
