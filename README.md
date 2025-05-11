@@ -58,11 +58,11 @@ terraform apply
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 helm upgrade --install \
---wait \
-helm-testing \
-grafana/oncall \
---version 1.3.62 \
---values oncall-values.yaml
+    --wait \
+    oncall \
+    grafana/oncall \
+    --version 1.3.62 \
+    --values oncall-values.yaml
 ```
 
 ## Установка victoria-metrics-k8s-stack
