@@ -1,6 +1,3 @@
-# Получаем информацию о конфигурации клиента Yandex
-data "yandex_client_config" "client" {}
-
 # Создание сервисного аккаунта для управления Kubernetes
 resource "yandex_iam_service_account" "sa-k8s-editor" {
   name      = "sa-k8s-editor"  # Имя сервисного аккаунта

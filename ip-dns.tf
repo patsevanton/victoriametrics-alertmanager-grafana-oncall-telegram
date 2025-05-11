@@ -1,5 +1,5 @@
 # Создание внешнего IP-адреса в Yandex Cloud
-resource "yandex_vpc_address" "addr" {
+resource "yandex_vpc_address" "oncall-pip" {
   name = "oncall-pip"  # Имя ресурса внешнего IP-адреса
 
   external_ipv4_address {
@@ -24,5 +24,5 @@ resource "yandex_dns_recordset" "oncall" {
   name    = "oncall.apatsev.org.ru."                # Полное имя записи (поддомен)
   type    = "A"                                     # Тип записи — A (IPv4-адрес)
   ttl     = 200                                     # Время жизни записи в секундах
-  data    = [yandex_vpc_address.addr.external_ipv4_address[0].address]  # Значение — внешний IP-адрес, полученный ранее
+  data    = [yandex_vpc_address.oncall-pip.external_ipv4_address[0].address]  # Значение — внешний IP-адрес, полученный ранее
 }
