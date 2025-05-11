@@ -1,9 +1,35 @@
-ingress-nginx:
-  enabled: false
+base_url: oncall.apatsev.org.ru
+broker:
+  type: rabbitmq
+celery:
+  worker_shutdown_interval: ""
 cert-manager:
   enabled: false
+database:
+  type: postgresql
+env:
+  - name: DANGEROUS_WEBHOOKS_ENABLED
+    value: 'True'
+  - name: GRAFANA_CLOUD_NOTIFICATIONS_ENABLED
+    value: 'False'
+grafana:
+  grafana.ini:
+    server:
+      domain: oncall.apatsev.org.ru
+      root_url: "http://oncall.apatsev.org.ru/grafana/"
+      serve_from_sub_path: true
 ingress:
-  enabled: true
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/issuer: "letsencrypt-prod"
+    cert-manager.io/issuer: null
+    kubernetes.io/ingress.class: nginx
+  enabled: true
+  tls: []
+ingress-nginx:
+  enabled: false
+mariadb:
+  enabled: false
+postgresql:
+  auth:
+    database: oncall
+    existingSecret:
+  enabled: true

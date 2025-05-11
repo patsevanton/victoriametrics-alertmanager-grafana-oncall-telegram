@@ -193,12 +193,10 @@ receivers:
 ```
 helm upgrade --install \
     --wait \
-    --set base_url=oncall.apatsev.org.ru \
-    --set grafana."grafana\.ini".server.domain=oncall.apatsev.org.ru \
-    --set ingress-nginx.controller.service.loadBalancerIP="158.160.34.198" \
     helm-testing \
     grafana/oncall \
-    --version 1.15.0
+    --version 1.15.0 \
+    --values oncall-values.yaml
 ```
 
 get password
