@@ -1,0 +1,12 @@
+assertNoLeakedSecrets: false
+ingress:
+  enabled: true
+  hosts:
+    - grafana.apatsev.org.ru
+plugins:
+  - https://grafana.com/api/plugins/grafana-oncall-app/versions/1.15.0/download;grafana-oncall-app
+env:
+  GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
+grafana.ini:
+  server:
+    root_url: http://grafana.apatsev.org.ru

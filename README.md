@@ -203,3 +203,15 @@ get password
 ```shell
 kubectl get secret --namespace default helm-testing-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
+
+
+```
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install 
+  --wait \
+  grafana \
+  grafana/grafana \
+  --version 8.5.11 \
+  --values oncall-values.yaml
+```
