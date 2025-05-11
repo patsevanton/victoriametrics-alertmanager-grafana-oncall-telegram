@@ -13,11 +13,7 @@ env:
   - name: GRAFANA_CLOUD_NOTIFICATIONS_ENABLED
     value: 'False'
 grafana:
-  grafana.ini:
-    server:
-      domain: oncall.apatsev.org.ru
-      root_url: "http://grafana.apatsev.org.ru"
-      serve_from_sub_path: true
+  enabled: false
 ingress:
   annotations:
     cert-manager.io/issuer: null
