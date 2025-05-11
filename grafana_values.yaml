@@ -5,7 +5,7 @@ ingress:
   hosts:
     - grafana.apatsev.org.ru
 plugins:
-  - https://grafana.com/api/plugins/grafana-oncall-app/versions/1.15.0/download;grafana-oncall-app
+  - https://grafana.com/api/plugins/grafana-oncall-app/versions/1.3.62/download;grafana-oncall-app
 env:
   GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
 grafana.ini:
