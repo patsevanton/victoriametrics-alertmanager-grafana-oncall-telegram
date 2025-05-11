@@ -57,10 +57,9 @@ terraform apply
 ```shell
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install \
-    --wait \
-    oncall \
-    grafana/oncall \
+helm upgrade --install --wait \
+    oncall grafana/oncall \
+    --namespace oncall --create-namespace \
     --version 1.3.62 \
     --values oncall-values.yaml
 ```
@@ -73,9 +72,11 @@ helm upgrade --install \
 helm repo add vm https://victoriametrics.github.io/helm-charts/
 helm repo update
 
-helm upgrade --install vmks vm/victoria-metrics-k8s-stack \
-  --namespace vmks --create-namespace \
-  --values vmks-values.yaml
+helm upgrade --install --wait \
+    vmks vm/victoria-metrics-k8s-stack \
+    --namespace vmks --create-namespace \
+    --version 0.46.0 \
+    --values vmks-values.yaml
 ```
 
 После установки, Grafana будет доступна по адресу http://grafana.apatsev.org.ru
