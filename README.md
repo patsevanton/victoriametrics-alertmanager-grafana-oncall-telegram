@@ -213,5 +213,5 @@ helm upgrade --install
   grafana \
   grafana/grafana \
   --version 8.5.11 \
-  --values oncall-values.yaml
+  --values grafana_values.yaml
 ```
