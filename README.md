@@ -195,7 +195,7 @@ helm upgrade --install \
     --wait \
     helm-testing \
     grafana/oncall \
-    --version 1.13.11 \
+    --version 1.15.0 \
     --values oncall-values.yaml
 ```
 
