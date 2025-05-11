@@ -57,17 +57,25 @@ VMAlert — это компонент стека мониторинга Victoria
 Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
 
 ```yaml
-groups:
-  - name: always-fire
-    rules:
-      - alert: AlwaysFiring
-        expr: 1 == 1
-        for: 1m
-        labels:
-          severity: test
-        annotations:
-          summary: "Тестовое оповещение: Always firing"
-          description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: always-fire-rule
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: always-fire
+      rules:
+        - alert: AlwaysFiring
+          expr: 1 == 1
+          for: 1m
+          labels:
+            severity: test
+          annotations:
+            summary: "Тестовое оповещение: Always firing"
+            description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
 ```
 
 Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность 
