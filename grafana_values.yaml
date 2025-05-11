@@ -1,6 +1,7 @@
 assertNoLeakedSecrets: false
 ingress:
   enabled: true
+  ingressClassName: nginx
   hosts:
     - grafana.apatsev.org.ru
 plugins:
