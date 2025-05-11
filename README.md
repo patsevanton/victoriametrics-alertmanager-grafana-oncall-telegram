@@ -208,7 +208,7 @@ kubectl get secret --namespace default helm-testing-grafana -o jsonpath="{.data.
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install 
+helm upgrade --install \
   --wait \
   grafana \
   grafana/grafana \
