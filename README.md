@@ -220,3 +220,10 @@ spec:
 `for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
 в Telegram.
+
+
+
+```
+curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://engine:8080/", "grafanaUrl":"http://grafana:3000/"}}'
+curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/resources/plugin/install'
+```
