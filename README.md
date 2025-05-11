@@ -40,48 +40,7 @@ Prometheus Rule → vmalert → Alertmanager → Grafana OnCall → Telegram
 Эта диаграмма отражает основной путь прохождения алерта — от возникновения события в метриках до получения уведомления 
 в мессенджере ответственным сотрудником.
 
-## VMAlert: обработка и маршрутизация алертов
-### Что такое VMAlert
-VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
-в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами,
-периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
-выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
-для дальнейшей маршрутизации и обработки.
 
-### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
-
-Для тестирования всей цепочки прохождения алерта, логично начать с самого простого варианта — создать правило, которое 
-будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события 
-до получения уведомления в Telegram — работает корректно.
-
-Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
-
-```yaml
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: always-fire-rule
-  labels:
-    prometheus: k8s
-    role: alert-rules
-spec:
-  groups:
-    - name: always-fire
-      rules:
-        - alert: AlwaysFiring
-          expr: 1 == 1
-          for: 1m
-          labels:
-            severity: test
-          annotations:
-            summary: "Тестовое оповещение: Always firing"
-            description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
-```
-
-Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность 
-`for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и 
-аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении 
-в Telegram.
 
 ## Установка Kubernetes
 
@@ -98,10 +57,12 @@ terraform apply
 ```shell
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install oncall grafana/oncall \
-    --namespace oncall \
-    --create-namespace \
-    --values oncall-values.yaml
+helm upgrade --install \
+--wait \
+helm-testing \
+grafana/oncall \
+--version 1.3.62 \
+--values oncall-values.yaml
 ```
 
 ## Установка victoria-metrics-k8s-stack
@@ -198,20 +159,12 @@ receivers:
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
 
-```
-helm upgrade --install \
-    --wait \
-    helm-testing \
-    grafana/oncall \
-    --version 1.3.62 \
-    --values oncall-values.yaml
-```
+
 
 get password
 ```shell
-kubectl get secret --namespace default helm-testing-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
-
 
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -223,3 +176,46 @@ helm upgrade --install \
   --version 7.3.12 \
   --values grafana_values.yaml
 ```
+
+## VMAlert: обработка и маршрутизация алертов
+### Что такое VMAlert
+VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
+в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами,
+периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
+выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
+для дальнейшей маршрутизации и обработки.
+
+### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
+
+Для тестирования всей цепочки прохождения алерта, логично начать с самого простого варианта — создать правило, которое
+будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события
+до получения уведомления в Telegram — работает корректно.
+
+Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: always-fire-rule
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: always-fire
+      rules:
+        - alert: AlwaysFiring
+          expr: 1 == 1
+          for: 1m
+          labels:
+            severity: test
+          annotations:
+            summary: "Тестовое оповещение: Always firing"
+            description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
+```
+
+Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
+`for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
+аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
+в Telegram.
