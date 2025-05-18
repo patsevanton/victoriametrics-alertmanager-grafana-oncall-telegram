@@ -50,6 +50,48 @@ terraform init
 terraform apply
 ```
 
+## Установка Prometheus Operator CRDs
+```shell
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install my-prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
+```
+
+### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
+
+Для тестирования всей цепочки прохождения алерта, логично начать с самого простого варианта — создать правило, которое
+будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события
+до получения уведомления в Telegram — работает корректно.
+
+Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: always-fire-rule
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: always-fire
+      rules:
+        - alert: AlwaysFiring
+          expr: 1 == 1
+          for: 1m
+          labels:
+            severity: test
+          annotations:
+            summary: "Тестовое оповещение: Always firing"
+            description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
+```
+
+Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
+`for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
+аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
+в Telegram.
+
 ## Установка OnCall
 
 ```shell
@@ -182,40 +224,6 @@ VMAlert — это компонент стека мониторинга Victoria
 выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
 для дальнейшей маршрутизации и обработки.
 
-### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
-
-Для тестирования всей цепочки прохождения алерта, логично начать с самого простого варианта — создать правило, которое
-будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события
-до получения уведомления в Telegram — работает корректно.
-
-Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
-
-```yaml
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: always-fire-rule
-  labels:
-    prometheus: k8s
-    role: alert-rules
-spec:
-  groups:
-    - name: always-fire
-      rules:
-        - alert: AlwaysFiring
-          expr: 1 == 1
-          for: 1m
-          labels:
-            severity: test
-          annotations:
-            summary: "Тестовое оповещение: Always firing"
-            description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
-```
-
-Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
-`for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
-аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
-в Telegram.
 
 
 Плагин Grafana OnCall из коробки не работает. Необходимо эти 2 команды для правильной его инициализации.
