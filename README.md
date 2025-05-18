@@ -40,8 +40,6 @@ Prometheus Rule → vmalert → Alertmanager → Grafana OnCall → Telegram
 Эта диаграмма отражает основной путь прохождения алерта — от возникновения события в метриках до получения уведомления 
 в мессенджере ответственным сотрудником.
 
-
-
 ## Установка Kubernetes
 
 Установка kubernetes через terraform
@@ -160,9 +158,7 @@ receivers:
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
 
-
-
-get password
+Получение пароля Grafana
 ```shell
 kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
@@ -222,7 +218,7 @@ spec:
 в Telegram.
 
 
-
+Плагин Grafana OnCall из коробки не работает. Необходимо эти 2 команды для правильной его инициализации.
 ```
 curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://engine:8080/", "grafanaUrl":"http://grafana:3000/"}}'
 curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/resources/plugin/install'
