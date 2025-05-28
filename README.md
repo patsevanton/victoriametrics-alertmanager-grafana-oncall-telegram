@@ -51,6 +51,7 @@ terraform apply
 ```
 
 ## Установка Prometheus Operator CRDs
+Используем Prometheus Operator CRDs потому что еще очень много алертов находится в виде в формате `kind: PrometheusRule`.
 ```shell
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
