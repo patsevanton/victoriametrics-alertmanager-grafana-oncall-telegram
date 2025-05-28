@@ -55,7 +55,7 @@ terraform apply
 ```shell
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install my-prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
+helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
 ### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
@@ -64,7 +64,7 @@ helm install my-prometheus-operator-crds prometheus-community/prometheus-operato
 будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события
 до получения уведомления в Telegram — работает корректно.
 
-Создадим yaml-файл с Prometheus alert rule, например, `always-fire-rule.yaml`:
+Создадим yaml-файл с Prometheus alert rule `always-fire-rule.yaml`:
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
@@ -86,6 +86,11 @@ spec:
           annotations:
             summary: "Тестовое оповещение: Always firing"
             description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
+```
+
+И применим его
+```shell
+kubectl apply -f always-fire-rule.yaml
 ```
 
 Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
