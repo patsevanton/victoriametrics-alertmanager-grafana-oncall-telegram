@@ -1,3 +1,4 @@
+# Проверка на утечку секретов
 assertNoLeakedSecrets: false
 ingress:
   enabled: true
@@ -9,5 +10,7 @@ plugins:
 env:
   GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
 grafana.ini:
+  feature_toggles:
+    accessControlOnCall: false
   server:
     root_url: http://grafana.apatsev.org.ru

@@ -98,18 +98,6 @@ kubectl apply -f always-fire-rule.yaml
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
 в Telegram.
 
-## Установка OnCall
-
-```shell
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install --wait \
-    oncall grafana/oncall \
-    --namespace oncall --create-namespace \
-    --version 1.3.62 \
-    --values oncall-values.yaml
-```
-
 ## Установка victoria-metrics-k8s-stack
 
 Добавим Helm репозиторий и установим VictoriaMetrics stack:
@@ -132,6 +120,25 @@ helm upgrade --install --wait \
 kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | base64 --decode
 ```
 
+## Установка OnCall helm чарта
+```shell
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install --wait \
+    oncall grafana/oncall \
+    --namespace oncall --create-namespace \
+    --version 1.3.62 \
+    --values oncall-values.yaml
+```
+
+
+# Настройка плагина OnCall
+Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
+плагина. Итак, для настройки плагина OnCall необходимо:
+- открыть grafana плагин
+- найти oncall плагин
+- Указать адрес oncall: `http://oncall-engine.oncall.svc.cluster.local:8080`
+
 ### Описание интеграции с Alertmanager
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
@@ -152,7 +159,7 @@ route:
 receivers:
   - name: 'oncall-webhook'
     webhook_configs:
-      - url: 'https://YOUR_ONCALL_URL/webhook/prometheus?integration_key=YOUR_INTEGRATION_KEY'
+      - url: 'http://oncall-engine:8080/webhook/prometheus?integration_key=YOUR_INTEGRATION_KEY'
         send_resolved: true
 ```
 
@@ -206,21 +213,7 @@ receivers:
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
 
-Получение пароля Grafana
-```shell
-kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-```
 
-```
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install \
-  --wait \
-  grafana \
-  grafana/grafana \
-  --version 7.3.12 \
-  --values grafana_values.yaml
-```
 
 ## VMAlert: обработка и маршрутизация алертов
 ### Что такое VMAlert
@@ -231,9 +224,27 @@ VMAlert — это компонент стека мониторинга Victoria
 для дальнейшей маршрутизации и обработки.
 
 
-
-Плагин Grafana OnCall из коробки не работает. Необходимо эти 2 команды для правильной его инициализации.
+# Попытка настройки Grafana OnCall плагина через API
+Плагин Grafana OnCall из коробки не работает. В инструкции указано использовать эти команды, но они не заработали.
 ```
-curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://engine:8080/", "grafanaUrl":"http://grafana:3000/"}}'
-curl -X POST 'http://admin:admin@localhost:3000/api/plugins/grafana-oncall-app/resources/plugin/install'
+curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://oncall-engine.oncall.svc.cluster.local:8080/", "grafanaUrl":"http://vmks-grafana.vmks.svc.cluster.local:80/"}}'
+curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/resources/plugin/install'
+```
+
+
+# Установка Grafana helm чарта
+Получение пароля Grafana
+```shell
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+```shell
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install \
+  --wait \
+  grafana \
+  grafana/grafana \
+  --version 7.3.12 \
+  --values grafana_values.yaml
 ```
