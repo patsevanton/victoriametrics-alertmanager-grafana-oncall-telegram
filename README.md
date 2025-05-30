@@ -103,7 +103,7 @@ kubectl apply -f always-fire-rule.yaml
 Добавим Helm репозиторий и установим VictoriaMetrics stack:
 
 ```bash
-helm repo add vm https://victoriametrics.github.io/helm-charts/
+repo add vm https://victoriametrics.github.io/helm-charts/
 helm repo update
 
 helm upgrade --install --wait \
@@ -132,36 +132,42 @@ helm upgrade --install --wait \
 ```
 
 
-# Настройка плагина OnCall
+# Установка плагина OnCall
 Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
 плагина. Итак, для настройки плагина OnCall через UI необходимо:
 - Открыть Grafana
-- Перейти Home -> Administration -> Plugins and data -> Grafana OnCall -> Configuration
+- Перейти `Home` -> `Administration` -> `Plugins and data` -> `Grafana OnCall` -> `Configuration`
 - Указать адрес oncall: `http://oncall-engine.oncall.svc.cluster.local:8080`
 - Нажать connect
+
+# Настройка плагина OnCall
+- Открываем в Grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Settings`.
+- Нажимаем `Create` в `API Tokens`
+- Указываем имя токена
+- Копируем токен для интеграции с OnCall
 
 ### Описание интеграции с Alertmanager
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
-получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример конфигурации может выглядеть 
-следующим образом:
+получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример части values для victoria-metrics-k8s-stack 
+выглядит следующим образом, где основной трафик алертов теперь идет в oncall:
 
 ```yaml
-global:
-  resolve_timeout: 5m
+alertmanager:
+  config:
+    route:
+      receiver: 'oncall-webhook'
+      group_by: ['alertname', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
 
-route:
-  receiver: 'oncall-webhook'
-  group_by: ['alertname', 'cluster']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 3h
-
-receivers:
-  - name: 'oncall-webhook'
-    webhook_configs:
-      - url: 'http://oncall-engine:8080/webhook/prometheus?integration_key=YOUR_INTEGRATION_KEY'
-        send_resolved: true
+    receivers:
+      - name: blackhole
+      - name: 'oncall-webhook'
+        webhook_configs:
+          - url: 'http://oncall-engine:8080/webhook/prometheus?integration_key=oncall_token'
+            send_resolved: true
 ```
 
 В этом примере создаётся receiver (получатель) с именем `oncall-webhook`, который использует webhook для отправки 

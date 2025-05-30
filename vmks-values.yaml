@@ -21,3 +21,18 @@ grafana:
             orgId: 1
             onCallApiUrl: http://oncall-engine.oncall.svc.cluster.local:8080
             grafanaUrl: "http://grafana.apatsev.org.ru"
+alertmanager:
+  config:
+    route:
+      receiver: 'oncall-webhook'
+      group_by: ['alertname', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+
+    receivers:
+      - name: blackhole
+      - name: 'oncall-webhook'
+        webhook_configs:
+          - url: 'http://oncall-engine:8080/webhook/prometheus?integration_key=oncall_token'
+            send_resolved: true
