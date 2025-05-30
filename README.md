@@ -145,7 +145,7 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 плагина. Итак, для настройки плагина OnCall через UI необходимо:
 - Открыть Grafana
 - Перейти `Home` -> `Administration` -> `Plugins and data` -> `Grafana OnCall` -> `Configuration`
-- Указать адрес oncall: `http://oncall-engine.oncall.svc.cluster.local:8080`
+- Указать адрес oncall: `http://oncall-engine.oncall:8080`
 - Нажать connect
 
 ### Описание интеграции с Alertmanager
