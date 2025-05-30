@@ -53,8 +53,8 @@ terraform apply
 ## Установка Prometheus Operator CRDs
 Используем Prometheus Operator CRDs потому что еще очень много алертов находится в виде в формате `kind: PrometheusRule`.
 ```shell
-#helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-#helm repo update
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
@@ -104,21 +104,13 @@ kubectl apply -f always-fire-rule.yaml
 Добавим Helm репозиторий и установим VictoriaMetrics stack:
 
 ```bash
-repo add vm https://victoriametrics.github.io/helm-charts/
+helm repo add vm https://victoriametrics.github.io/helm-charts/
 helm repo update
-
 helm upgrade --install --wait \
     vmks vm/victoria-metrics-k8s-stack \
     --namespace vmks --create-namespace \
     --version 0.46.0 \
     --values vmks-values.yaml
-```
-
-После установки, Grafana будет доступна по адресу http://grafana.apatsev.org.ru
-
-Получение пароля grafana для admin юзера
-```shell
-kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | base64 --decode
 ```
 
 ## Установка OnCall helm чарта
@@ -143,6 +135,12 @@ ingress:
 ```
 
 # Установка плагина OnCall
+Grafana будет доступна по адресу http://grafana.apatsev.org.ru
+Получение пароля grafana для admin юзера
+```shell
+kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | base64 --decode
+```
+
 Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
 плагина. Итак, для настройки плагина OnCall через UI необходимо:
 - Открыть Grafana

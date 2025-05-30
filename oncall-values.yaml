@@ -3,8 +3,6 @@ broker:
   type: rabbitmq
 celery:
   worker_shutdown_interval: ""
-cert-manager:
-  enabled: false
 database:
   type: postgresql
 env:
@@ -20,8 +18,6 @@ ingress:
   annotations:
     cert-manager.io/issuer: "letsencrypt-prod"
     kubernetes.io/ingress.class: nginx
-  enabled: true
-  tls: []
 ingress-nginx:
   enabled: false
 mariadb:
