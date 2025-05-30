@@ -141,12 +141,24 @@ helm upgrade --install --wait \
 - Нажать connect
 
 # Настройка плагина OnCall
-- Открываем в Grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Settings`.
-- Нажимаем `Create` в `API Tokens`
-- Указываем имя токена
-- Копируем токен для интеграции с OnCall
+# Открываем в Grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Settings`.
+# Нажимаем `Create` в `API Tokens`
+# Указываем имя токена
+# Копируем токен для интеграции с OnCall
 
 ### Описание интеграции с Alertmanager
+
+Необходимо создать integration
+В grafana переходим: `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
+Создаем integration с именем `alertmanager-intergration`
+Получаем URL для интеграции с внешним адресом:
+```
+https://oncall.apatsev.org.ru/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
+```
+Этот URL можно переделать с внутреним адресом:
+```shell
+http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
+```
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
 получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример части values для victoria-metrics-k8s-stack 
@@ -166,7 +178,7 @@ alertmanager:
       - name: blackhole
       - name: 'oncall-webhook'
         webhook_configs:
-          - url: 'http://oncall-engine:8080/webhook/prometheus?integration_key=oncall_token'
+          - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
             send_resolved: true
 ```
 
@@ -189,13 +201,28 @@ Prometheus генерирует alert согласно заданным прав
 
 Например, фрагмент в `alertmanager.yml` может выглядеть так:
 ```yaml
-receivers:
-  - name: 'grafana-oncall'
+  - name: 'oncall-webhook'
     webhook_configs:
-      - url: 'https://oncall.example.com/webhooks/alertmanager/xxxxxxxxxxxx'
+      - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
+        send_resolved: true
 ```
 После этого все алерты, направленные на receiver `grafana-oncall`, будут поступать в Grafana OnCall для 
 дальнейшей обработки.
+
+# Настройка цепочки эскалации
+Переходим в grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Escalation chains`
+Создаем новую цепочку эскалации: `demo-escalation-chain`: notify user `admin`.
+
+# Подключени цепочки эскалации к integration:
+Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
+Подключаем цепочку эскалации `demo-escalation-chain` к `alertmanager-intergration`
+
+# Настройка расписания дежурств
+Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Schedules`
+Нажимаем `New schedule` и выбираем `Set up on-call rotation schedule`
+Создаем новое расписание дежурств с названием `demo-schedule`
+Нажимаем `Add rotation`, выбираем weeks и активируем `Mask by weekdays` и выбираем `Mo`,`Tu`,`We`,`Th`,`Fr`.
+Указываем юзера. В данном случае юзер admin.
 
 ## Настройка Grafana OnCall для оповещения в Telegram
 ### Получение алертов в личных сообщениях Telegram
