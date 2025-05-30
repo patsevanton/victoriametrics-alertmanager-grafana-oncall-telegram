@@ -134,10 +134,11 @@ helm upgrade --install --wait \
 
 # Настройка плагина OnCall
 Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
-плагина. Итак, для настройки плагина OnCall необходимо:
-- открыть grafana плагин
-- найти oncall плагин
+плагина. Итак, для настройки плагина OnCall через UI необходимо:
+- Открыть Grafana
+- Перейти Home -> Administration -> Plugins and data -> Grafana OnCall -> Configuration
 - Указать адрес oncall: `http://oncall-engine.oncall.svc.cluster.local:8080`
+- Нажать connect
 
 ### Описание интеграции с Alertmanager
 
