@@ -131,6 +131,16 @@ helm upgrade --install --wait \
     --values oncall-values.yaml
 ```
 
+# Особенность интеграции telegram c oncall
+Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
+Поэтому в чарте oncall присутствует следующий код:
+```yaml
+ingress:
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: nginx
+```
+
 # Установка плагина OnCall
 Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
 плагина. Итак, для настройки плагина OnCall через UI необходимо:
@@ -148,6 +158,7 @@ helm upgrade --install --wait \
 ```
 https://oncall.apatsev.org.ru/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
 ```
+
 Этот URL можно переделать с внутреним адресом:
 ```shell
 http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
