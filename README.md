@@ -155,12 +155,12 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 Создаем integration с именем `alertmanager-intergration`
 Получаем URL для интеграции с внешним адресом:
 ```
-https://oncall.apatsev.org.ru/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
+https://oncall.apatsev.org.ru/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
 
 Этот URL можно переделать с внутреним адресом:
 ```shell
-http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/
+http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 

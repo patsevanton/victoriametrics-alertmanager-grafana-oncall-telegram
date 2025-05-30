@@ -9,18 +9,6 @@ grafana:
     enabled: true
     hosts:
       - grafana.apatsev.org.ru
-  additionalDatasourceFiles:
-    grafana-oncall-app.yaml:
-      apiVersion: 1
-      apps:
-        - type: grafana-oncall-app
-          name: grafana-oncall-app
-          enabled: true
-          jsonData:
-            stackId: 5
-            orgId: 1
-            onCallApiUrl: http://oncall-engine.oncall.svc.cluster.local:8080
-            grafanaUrl: "http://grafana.apatsev.org.ru"
 alertmanager:
   config:
     route:
@@ -31,7 +19,7 @@ alertmanager:
       repeat_interval: 3h
     receivers:
       - name: blackhole
-#      - name: 'oncall-webhook'
-#        webhook_configs:
-#          - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/webhook/prometheus?integration_key=oncall_token'
-#            send_resolved: true
+      - name: 'oncall-webhook'
+        webhook_configs:
+          - url: 'http://oncall-engine.oncall:8080/webhook/prometheus?integration_key=oncall_token'
+            send_resolved: true
