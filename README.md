@@ -158,7 +158,7 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 https://oncall.apatsev.org.ru/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
 
-Этот URL можно переделать с внутреним адресом:
+Этот URL можно переделать с внутренним адресом:
 ```shell
 http://oncall-engine.oncall:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
@@ -228,8 +228,6 @@ Prometheus генерирует alert согласно заданным прав
 Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
 Подключаем цепочку эскалации `demo-escalation-chain` к `alertmanager-intergration`
 
-
-
 ## Настройка Grafana OnCall для оповещения в Telegram
 ### Получение алертов в личных сообщениях Telegram
 Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить, 
@@ -253,8 +251,6 @@ Prometheus генерирует alert согласно заданным прав
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
 
-
-
 ## VMAlert: обработка и маршрутизация алертов
 ### Что такое VMAlert
 VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
@@ -270,7 +266,6 @@ VMAlert — это компонент стека мониторинга Victoria
 curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://oncall-engine.oncall.svc.cluster.local:8080/", "grafanaUrl":"http://vmks-grafana.vmks.svc.cluster.local:80/"}}'
 curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/resources/plugin/install'
 ```
-
 
 # Установка Grafana helm чарта
 Получение пароля Grafana
