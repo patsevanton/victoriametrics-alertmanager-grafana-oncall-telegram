@@ -160,7 +160,7 @@ https://oncall.apatsev.org.ru/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3
 
 Этот URL можно переделать с внутреним адресом:
 ```shell
-http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
+http://oncall-engine.oncall:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
