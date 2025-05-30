@@ -53,8 +53,8 @@ terraform apply
 ## Установка Prometheus Operator CRDs
 Используем Prometheus Operator CRDs потому что еще очень много алертов находится в виде в формате `kind: PrometheusRule`.
 ```shell
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
+#helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
@@ -82,7 +82,8 @@ spec:
           expr: 1 == 1
           for: 1m
           labels:
-            severity: test
+            severity: critical
+            team: devops
           annotations:
             summary: "Тестовое оповещение: Always firing"
             description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
