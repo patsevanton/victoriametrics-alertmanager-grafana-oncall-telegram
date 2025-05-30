@@ -1,25 +1,23 @@
 base_url: oncall.apatsev.org.ru
-broker:
-  type: rabbitmq
 celery:
   worker_shutdown_interval: ""
-database:
-  type: postgresql
+telegramPolling:
+  enabled: true
 env:
   - name: DANGEROUS_WEBHOOKS_ENABLED
     value: 'True'
   - name: GRAFANA_CLOUD_NOTIFICATIONS_ENABLED
     value: 'False'
-grafana:
-  enabled: false
-externalGrafana:
-  url: http://grafana.apatsev.org.ru
+  - name: SEND_ANONYMOUS_USAGE_STATS
+    value: "False"
 ingress:
   annotations:
     cert-manager.io/issuer: "letsencrypt-prod"
     kubernetes.io/ingress.class: nginx
 ingress-nginx:
   enabled: false
+database:
+  type: postgresql
 mariadb:
   enabled: false
 postgresql:
@@ -27,3 +25,9 @@ postgresql:
     database: oncall
     existingSecret:
   enabled: true
+broker:
+  type: rabbitmq
+grafana:
+  enabled: false
+externalGrafana:
+  url: http://grafana.apatsev.org.ru
