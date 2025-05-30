@@ -155,35 +155,26 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 Создаем integration с именем `alertmanager-intergration`
 Получаем URL для интеграции с внешним адресом:
 ```
-https://oncall.apatsev.org.ru/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
+https://oncall.apatsev.org.ru/integrations/v1/alertmanager/token/
 ```
 
 Этот URL можно переделать с внутренним адресом:
-```shell
-http://oncall-engine.oncall:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/
 ```
+http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/
+```
+Активируем webhook_configs в файле vmks-values.yaml и запускаем обновление victoria-metrics-k8s-stack
+```bash
+helm upgrade --install --wait \
+    vmks vm/victoria-metrics-k8s-stack \
+    --namespace vmks --create-namespace \
+    --version 0.46.0 \
+    --values vmks-values.yaml
+```
+
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
 получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример части values для victoria-metrics-k8s-stack 
 выглядит следующим образом, где основной трафик алертов теперь идет в oncall:
-
-```yaml
-alertmanager:
-  config:
-    route:
-      receiver: 'oncall-webhook'
-      group_by: ['alertname', 'cluster']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 3h
-
-    receivers:
-      - name: blackhole
-      - name: 'oncall-webhook'
-        webhook_configs:
-          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
-            send_resolved: true
-```
 
 В этом примере создаётся receiver (получатель) с именем `oncall-webhook`, который использует webhook для отправки 
 алертов напрямую в Grafana OnCall. В URL указывается уникальный путь интеграции и ключ, который можно получить в 
@@ -202,13 +193,6 @@ Prometheus генерирует alert согласно заданным прав
 интерфейсе OnCall, создаётся интеграция типа Alertmanager, где система генерирует URL, на который должны приходить 
 алерты. Этот адрес и указывается в Alertmanager.
 
-Например, фрагмент в `alertmanager.yml` может выглядеть так:
-```yaml
-  - name: 'oncall-webhook'
-    webhook_configs:
-      - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
-        send_resolved: true
-```
 После этого все алерты, направленные на receiver `grafana-oncall`, будут поступать в Grafana OnCall для 
 дальнейшей обработки.
 

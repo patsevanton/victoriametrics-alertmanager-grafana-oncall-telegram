@@ -19,7 +19,7 @@ alertmanager:
       repeat_interval: 3h
     receivers:
       - name: blackhole
-#      - name: 'oncall-webhook'
-#        webhook_configs:
-#          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/TSDJEwjJVUAKVWN9FoKP3ib60/'
-#            send_resolved: true
+      - name: 'oncall-webhook'
+        webhook_configs:
+          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/'
+            send_resolved: true
