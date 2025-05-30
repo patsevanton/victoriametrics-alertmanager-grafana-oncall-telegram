@@ -209,20 +209,23 @@ Prometheus генерирует alert согласно заданным прав
 После этого все алерты, направленные на receiver `grafana-oncall`, будут поступать в Grafana OnCall для 
 дальнейшей обработки.
 
-# Настройка цепочки эскалации
-Переходим в grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Escalation chains`
-Создаем новую цепочку эскалации: `demo-escalation-chain`: notify user `admin`.
-
-# Подключени цепочки эскалации к integration:
-Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
-Подключаем цепочку эскалации `demo-escalation-chain` к `alertmanager-intergration`
-
 # Настройка расписания дежурств
 Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Schedules`
 Нажимаем `New schedule` и выбираем `Set up on-call rotation schedule`
 Создаем новое расписание дежурств с названием `demo-schedule`
 Нажимаем `Add rotation`, выбираем weeks и активируем `Mask by weekdays` и выбираем `Mo`,`Tu`,`We`,`Th`,`Fr`.
 Указываем юзера. В данном случае юзер admin.
+
+# Настройка цепочки эскалации
+Переходим в grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Escalation chains`
+Создаем новую цепочку эскалации: `demo-escalation-chain`: `notify users from on-call schedule`.
+И выбираем `demo-schedule`.
+
+# Подключение цепочки эскалации к integration:
+Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
+Подключаем цепочку эскалации `demo-escalation-chain` к `alertmanager-intergration`
+
+
 
 ## Настройка Grafana OnCall для оповещения в Telegram
 ### Получение алертов в личных сообщениях Telegram
