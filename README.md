@@ -181,7 +181,7 @@ alertmanager:
       - name: blackhole
       - name: 'oncall-webhook'
         webhook_configs:
-          - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
+          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/U0hrsrmyTb0RmlRVilxpQIzBG/'
             send_resolved: true
 ```
 
