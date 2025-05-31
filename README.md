@@ -65,7 +65,7 @@ helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
-## Особенность интеграции telegram c oncall
+## Особенность интеграции telegram c oncall ???
 Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
 Поэтому в чарте oncall присутствует следующий код:
 ```yaml
