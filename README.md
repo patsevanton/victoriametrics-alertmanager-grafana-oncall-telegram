@@ -90,27 +90,13 @@ spec:
 
 И применим его
 ```shell
-kubectl apply -f always-fire-rule.yaml
+kubectl apply -f alert-always-fire.yaml
 ```
 
 Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
 `for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
 в Telegram.
-
-## Установка victoria-metrics-k8s-stack
-
-Добавим Helm репозиторий и установим VictoriaMetrics stack:
-
-```bash
-helm repo add vm https://victoriametrics.github.io/helm-charts/
-helm repo update
-helm upgrade --install --wait \
-    vmks vm/victoria-metrics-k8s-stack \
-    --namespace vmks --create-namespace \
-    --version 0.46.0 \
-    --values vmks-values.yaml
-```
 
 ## Установка OnCall helm чарта
 ```shell
@@ -121,6 +107,18 @@ helm upgrade --install --wait \
     --namespace oncall --create-namespace \
     --version 1.3.62 \
     --values oncall-values.yaml
+```
+
+## Установка victoria-metrics-k8s-stack
+Добавим Helm репозиторий и установим VictoriaMetrics stack:
+```bash
+helm repo add vm https://victoriametrics.github.io/helm-charts/
+helm repo update
+helm upgrade --install --wait \
+    vmks vm/victoria-metrics-k8s-stack \
+    --namespace vmks --create-namespace \
+    --version 0.46.0 \
+    --values vmks-values.yaml
 ```
 
 # Особенность интеграции telegram c oncall
@@ -277,7 +275,6 @@ Aлерт в telegram выглядит вот так
 ![](alert_in_telegram.png)
 Вы можете нажать resolve, если починили проблему или можете загрушить алерт.
 
-
 ## Заключение
 Интеграция Grafana OnCall с Telegram — это быстрый способ организовать современную командную коммуникацию по 
 инцидентам без лишней бюрократии. Grafana OnCall предоставляет централизованную платформу для эффективного 
@@ -294,11 +291,3 @@ VMAlert — это компонент стека мониторинга Victoria
 периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
 выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
 для дальнейшей маршрутизации и обработки.
-
-
-# Попытка настройки Grafana OnCall плагина через API
-Плагин Grafana OnCall из коробки не работает. В инструкции указано использовать эти команды, но они не заработали.
-```
-curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://oncall-engine.oncall.svc.cluster.local:8080/", "grafanaUrl":"http://vmks-grafana.vmks.svc.cluster.local:80/"}}'
-curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/resources/plugin/install'
-```
