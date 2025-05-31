@@ -20,7 +20,6 @@ OnCall можно подтвердить получение сообщения (
 отслеживать подтверждение алертов.
 
 ## Общая схема прохождения алерта
-
 ### Визуальная схема (диаграмма прохождения алерта)
 ```
 Prometheus Rule → vmalert → Alertmanager → Grafana OnCall → Telegram
@@ -66,6 +65,15 @@ helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
+## Особенность интеграции telegram c oncall
+Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
+Поэтому в чарте oncall присутствует следующий код:
+```yaml
+ingress:
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: nginx
+```
 
 ## Установка OnCall helm чарта
 ```shell
@@ -130,16 +138,6 @@ kubectl apply -f alert-always-fire.yaml
 `for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
 в Telegram.
-
-# Особенность интеграции telegram c oncall
-Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
-Поэтому в чарте oncall присутствует следующий код:
-```yaml
-ingress:
-  annotations:
-    cert-manager.io/issuer: "letsencrypt-prod"
-    kubernetes.io/ingress.class: nginx
-```
 
 # Установка плагина OnCall
 Grafana будет доступна по адресу http://grafana.apatsev.org.ru
