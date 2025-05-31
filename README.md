@@ -302,20 +302,3 @@ VMAlert — это компонент стека мониторинга Victoria
 curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/settings' -H "Content-Type: application/json" -d '{"enabled":true, "jsonData":{"stackId":5, "orgId":100, "onCallApiUrl":"http://oncall-engine.oncall.svc.cluster.local:8080/", "grafanaUrl":"http://vmks-grafana.vmks.svc.cluster.local:80/"}}'
 curl -X POST 'http://admin:пароль@grafana.apatsev.org.ru/api/plugins/grafana-oncall-app/resources/plugin/install'
 ```
-
-# Установка Grafana helm чарта
-Получение пароля Grafana
-```shell
-kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-```
-
-```shell
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install \
-  --wait \
-  grafana \
-  grafana/grafana \
-  --version 7.3.12 \
-  --values grafana_values.yaml
-```
