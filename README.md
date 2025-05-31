@@ -28,6 +28,14 @@ Prometheus Rule → vmalert → Alertmanager → Grafana OnCall → Telegram
 Эта диаграмма отражает основной путь прохождения алерта — от возникновения события в метриках до получения уведомления
 в мессенджере ответственным сотрудником.
 
+## VMAlert: обработка и маршрутизация алертов
+### Что такое VMAlert
+VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
+в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами,
+периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
+выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
+для дальнейшей маршрутизации и обработки.
+
 ### Архитектура решения
 В данной архитектуре для мониторинга метрик используется Prometheus-совместимая система — VictoriaMetrics с её 
 компонентом vmalert. Сначала создаётся alert rule (правило срабатывания) и применяется 
@@ -57,6 +65,31 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
+
+
+## Установка OnCall helm чарта
+```shell
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm upgrade --install --wait \
+    oncall grafana/oncall \
+    --namespace oncall --create-namespace \
+    --version 1.3.62 \
+    --values oncall-values.yaml
+```
+
+## Установка victoria-metrics-k8s-stack
+Добавим Helm репозиторий и установим VictoriaMetrics stack:
+```bash
+helm repo add vm https://victoriametrics.github.io/helm-charts/
+helm repo update
+helm upgrade --install --wait \
+    vmks vm/victoria-metrics-k8s-stack \
+    --namespace vmks --create-namespace \
+    --version 0.46.0 \
+    --values vmks-values.yaml
+```
+
 
 ### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
 
@@ -97,29 +130,6 @@ kubectl apply -f alert-always-fire.yaml
 `for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
 аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
 в Telegram.
-
-## Установка OnCall helm чарта
-```shell
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install --wait \
-    oncall grafana/oncall \
-    --namespace oncall --create-namespace \
-    --version 1.3.62 \
-    --values oncall-values.yaml
-```
-
-## Установка victoria-metrics-k8s-stack
-Добавим Helm репозиторий и установим VictoriaMetrics stack:
-```bash
-helm repo add vm https://victoriametrics.github.io/helm-charts/
-helm repo update
-helm upgrade --install --wait \
-    vmks vm/victoria-metrics-k8s-stack \
-    --namespace vmks --create-namespace \
-    --version 0.46.0 \
-    --values vmks-values.yaml
-```
 
 # Особенность интеграции telegram c oncall
 Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
@@ -285,10 +295,4 @@ Aлерт в telegram выглядит вот так
 Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
 рабочие процессы под каждую команду.
 
-## VMAlert: обработка и маршрутизация алертов
-### Что такое VMAlert
-VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
-в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами,
-периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
-выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
-для дальнейшей маршрутизации и обработки.
+
