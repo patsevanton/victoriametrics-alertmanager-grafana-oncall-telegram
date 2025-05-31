@@ -170,6 +170,11 @@ helm upgrade --install --wait \
     --values vmks-values.yaml
 ```
 
+Почему-то слетает настройка плагина OnCall. Поэтому настраиваем его снова.
+- Открываем Grafana
+- Перейти `Home` -> `Administration` -> `Plugins and data` -> `Grafana OnCall` -> `Configuration`
+- Указать адрес oncall: `http://oncall-engine.oncall:8080`
+- Нажать connect
 
 Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий 
 получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример части values для victoria-metrics-k8s-stack 
@@ -212,6 +217,17 @@ Prometheus генерирует alert согласно заданным прав
 Подключаем цепочку эскалации `demo-escalation-chain` к `alertmanager-intergration`
 
 ## Настройка Grafana OnCall для оповещения в Telegram
+
+# Указание telegram token
+Если вы не активируйте telegram polling и не укажите telegram token, то будут ошибки:
+`kubectl logs -n oncall -l app.kubernetes.io/component=telegram-polling -c telegram-polling`
+```
+telegram.error.InvalidToken: Invalid token
+```
+
+Поэтому прописываем telegram token в env в oncall-values.yaml либо переходим 
+в `Home` -> `Alerts & IRM` -> `OnCall` -> `Settings`, а затем активируем telegram polling в oncall-values.yaml.
+
 ### Получение алертов в личных сообщениях Telegram
 Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить, 
 решить, замолчать оповещение) прямо из чата:

@@ -1,8 +1,8 @@
 base_url: oncall.apatsev.org.ru
 celery:
   worker_shutdown_interval: ""
-telegramPolling:
-  enabled: true
+#telegramPolling:
+#  enabled: true
 env:
   - name: DANGEROUS_WEBHOOKS_ENABLED
     value: 'True'
@@ -10,6 +10,8 @@ env:
     value: 'False'
   - name: SEND_ANONYMOUS_USAGE_STATS
     value: "False"
+#  - name: TELEGRAM_TOKEN
+#    value: "telegram token полученный от BotFather"
 ingress:
   annotations:
     cert-manager.io/issuer: "letsencrypt-prod"
