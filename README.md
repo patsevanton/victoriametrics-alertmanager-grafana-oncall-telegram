@@ -83,7 +83,6 @@ spec:
           for: 1m
           labels:
             severity: critical
-            team: devops
           annotations:
             summary: "Тестовое оповещение: Always firing"
             description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
@@ -152,7 +151,7 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 
 Необходимо создать integration
 В grafana переходим: `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
-Создаем integration с именем `alertmanager-intergration`
+Создаем `alertmanager` integration с именем `alertmanager-intergration`
 Получаем URL для интеграции с внешним адресом:
 ```
 https://oncall.apatsev.org.ru/integrations/v1/alertmanager/token/
@@ -217,8 +216,9 @@ Prometheus генерирует alert согласно заданным прав
 Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить, 
 решить, замолчать оповещение) прямо из чата:
 
-- Откройте свой профиль в Grafana OnCall.
-- Найдите настройку Telegram, нажмите “Connect”.
+- Перейдите в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Users`.
+- Нажимаем `View my profile`
+- Найдите настройку Telegram, нажмите “Connect account”.
 - Для автоматического подключения нажмите “Connect automatically”. OnCall-бот пришлёт вам сообщение — нажмите “Старт” 
 - в Telegram и дождитесь подтверждения соединения.
 - Теперь вы будете получать оповещения непосредственно в Telegram.
