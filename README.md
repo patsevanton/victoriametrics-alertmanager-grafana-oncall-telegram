@@ -230,11 +230,12 @@ helm upgrade --install --wait \
 ## Настройка Grafana OnCall для оповещения в Telegram
 
 # Указание telegram token
-Если вы активируйте telegram polling и не укажите telegram token, то будут ошибки:
+Если вы активируйте telegram polling и не укажите telegram token, то будут ошибки.
+Читаем логи telegram-polling:
 ```shell
 kubectl logs -n oncall -l app.kubernetes.io/component=telegram-polling -c telegram-polling
 ```
-
+Ошибка:
 ```
 telegram.error.InvalidToken: Invalid token
 ```
