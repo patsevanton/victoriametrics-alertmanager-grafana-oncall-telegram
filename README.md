@@ -364,7 +364,7 @@ kubectl apply -f alert-always-fire.yaml
 Примерный вид сообщения и доступные действия зависят от версии Grafana OnCall и конфигурации бота.
 ![alert_in_telegram.png](alert_in_telegram.png)
 
-## Проблемы разных версий Oncall, которые я встретил при установке:
+## Список issue из-за которых не устанавливаются новые версии OnCall:
 *  [Grafana Oncall Plugin not connected](https://github.com/grafana/oncall/issues/5100)
 *  [Oncall can't connect to external grafana](https://github.com/grafana/oncall/issues/4829)
 *  [External Grafana couldn't connect to grafana oncall.](https://github.com/grafana/oncall/issues/1045)
