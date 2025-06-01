@@ -11,15 +11,22 @@ grafana:
       - grafana.apatsev.org.ru
 alertmanager:
   config:
+    global:
+      resolve_timeout: 5m
     route:
-      receiver: 'oncall-webhook'
-      group_by: ['alertname', 'cluster']
+      group_by: ['job', 'alertname', 'severity']
       group_wait: 30s
       group_interval: 5m
-      repeat_interval: 3h
+      repeat_interval: 1h
+      receiver: 'default-receiver' # Ваш основной ресивер, если есть
+      routes:
+        - receiver: 'oncall-webhook-receiver'
+          matchers: # Опционально: можно указать, какие алерты слать в OnCall
+            - severity =~ "critical|warning" # Например, только критичные и предупреждения
+          continue: true # Позволяет алерту идти и в другие ресиверы, если нужно
     receivers:
-      - name: blackhole
-#      - name: 'oncall-webhook'
-#        webhook_configs:
-#          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/'
-#            send_resolved: true
+      - name: 'default-receiver' # Пример вашего обычного ресивера
+      - name: 'oncall-webhook-receiver'
+        webhook_configs:
+          - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/token/' # Вставьте сюда ВНУТРЕННИЙ URL из OnCall
+            send_resolved: true # Очень важно отправлять информацию о разрешении алерта
