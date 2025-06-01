@@ -1,55 +1,40 @@
 ## Введение
-Мониторинг позволяет вовремя выявлять проблемы в системе, а оповещения через такие инструменты, как Alertmanager и 
-Grafana OnCall, помогают команде быстро реагировать. В статье описано, как связать между собой различные инструменты, 
-чтобы инцидент автоматически отслеживался от правила мониторинга до уведомления в мессенджере.
+
+Мониторинг позволяет вовремя выявлять проблемы в системе, а оповещения через такие инструменты, как Alertmanager и Grafana OnCall, помогают команде быстро реагировать. В статье описано, как связать между собой различные инструменты, чтобы инцидент автоматически отслеживался от правила мониторинга до уведомления в мессенджере.
 
 ## Преимущества маршрутизации алертов через OnCall
-Если слать алерты напрямую из Alertmanager в Telegram, уведомления всегда будут приходить в один и тот же чат или
-нескольким людям сразу, что неудобно при сменах дежурств и может привести к потере ответственности — все видят
-сообщение, но никто не обязан реагировать. Нет удобного контроля, кто сейчас отвечает, сложно отличить рабочие
-часы от нерабочих, невозможно управлять графиком дежурств.
 
-Если же передавать оповещения из Alertmanager в Grafana OnCall, а уже оттуда — в Telegram, появляются важные
-преимущества. Grafana OnCall позволяет вести расписание дежурств: вы указываете, кто и когда на смене, и только
-этот человек получает уведомление. Также доступна эскалация — если дежурный не отреагировал за определённое время,
-алерт пересылается следующему ответственному или целой группе, чтобы инцидент не остался без внимания. Через Grafana
-OnCall можно подтвердить получение сообщения ("Acknowledge").
+Если слать алерты напрямую из Alertmanager в Telegram, уведомления всегда будут приходить в один и тот же чат или нескольким людям сразу, что неудобно при сменах дежурств и может привести к потере ответственности — все видят сообщение, но никто не обязан реагировать. Нет удобного контроля, кто сейчас отвечает, сложно отличить рабочие часы от нерабочих, невозможно управлять графиком дежурств.
 
-Таким образом, связка Alertmanager → Grafana OnCall → Telegram обеспечивает централизованный, управляемый и
-прозрачный процесс реагирования на инциденты, автоматизирует учёт дежурств, поддерживает эскалацию и позволяет
-отслеживать подтверждение алертов.
+Если же передавать оповещения из Alertmanager в Grafana OnCall, а уже оттуда — в Telegram, появляются важные преимущества. Grafana OnCall позволяет вести расписание дежурств: вы указываете, кто и когда на смене, и только этот человек получает уведомление. Также доступна эскалация — если дежурный не отреагировал за определённое время, алерт пересылается следующему ответственному или целой группе, чтобы инцидент не остался без внимания. Через Grafana OnCall можно подтвердить получение сообщения ("Acknowledge").
+
+Таким образом, связка `Alertmanager → Grafana OnCall → Telegram` обеспечивает централизованный, управляемый и прозрачный процесс реагирования на инциденты, автоматизирует учёт дежурств, поддерживает эскалацию и позволяет отслеживать подтверждение алертов.
 
 ## Общая схема прохождения алерта
-### Визуальная схема (диаграмма прохождения алерта)
+
+### Диаграмма прохождения алерта
+
 ```
 Prometheus Rule → vmalert → Alertmanager → Grafana OnCall → Telegram
 ```
-Эта диаграмма отражает основной путь прохождения алерта — от возникновения события в метриках до получения уведомления
-в мессенджере ответственным сотрудником.
+
+Эта диаграмма отражает основной путь прохождения алерта — от возникновения события в метриках до получения уведомления в мессенджере ответственным сотрудником.
 
 ## VMAlert: обработка и маршрутизация алертов
+
 ### Что такое VMAlert
-VMAlert — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules)
-в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами,
-периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет
-выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager
-для дальнейшей маршрутизации и обработки.
+
+**VMAlert** — это компонент стека мониторинга VictoriaMetrics, предназначенный для оценки правил алертинга (alerting rules) в стиле Prometheus и генерации алертов на их основе. VMAlert берет на вход файл (или список файлов) с alert rule'ами, периодически опрашивает метрики (как правило, из VictoriaMetrics или Prometheus-compatible источников), вычисляет выражения и при их срабатывании формирует события алерта. Далее он направляет сформированные алерты в Alertmanager для дальнейшей маршрутизации и обработки.
 
 ### Архитектура решения
-В данной архитектуре для мониторинга метрик используется Prometheus-совместимая система — VictoriaMetrics с её 
-компонентом vmalert. Сначала создаётся alert rule (правило срабатывания) и применяется 
-к vmalert. Как только условие правила выполняется, vmalert формирует алерт и отправляет его в Alertmanager. Alertmanager 
-занимается маршрутизацией алертов, их группировкой, устранением дублирования и переадресацией по настройкам. Следующий 
-этап — передача алерта из Alertmanager в Grafana OnCall, который уже отвечает за координацию оповещений: учитывает 
-расписания дежурных, каналы связи и собственную логику эскалаций. После обработки события в OnCall ответственным 
-лицам отправляется уведомление — в нашем случае посредством Telegram.
+В данной архитектуре для мониторинга метрик используется Prometheus-совместимая система — VictoriaMetrics с её компонентом vmalert. Сначала создаётся alert rule (правило срабатывания) и применяется к vmalert. Как только условие правила выполняется, vmalert формирует алерт и отправляет его в Alertmanager. Alertmanager занимается маршрутизацией алертов, их группировкой, устранением дублирования и переадресацией по настройкам. Следующий этап — передача алерта из Alertmanager в Grafana OnCall, который уже отвечает за координацию оповещений: учитывает расписания дежурных, каналы связи и собственную логику эскалаций. После обработки события в OnCall ответственным лицам отправляется уведомление — в нашем случае посредством Telegram.
 
-Такой подход позволяет гибко настроить процесс реагирования на инциденты: алерты по цепочке проходят через все нужные 
-этапы фильтрации, маршрутизации и эскалации для быстрого и адресного оповещения нужных сотрудников.
+Такой подход позволяет гибко настроить процесс реагирования на инциденты: алерты по цепочке проходят через все нужные этапы фильтрации, маршрутизации и эскалации для быстрого и адресного оповещения нужных сотрудников.
 
 ## Установка Kubernetes
 
-Установка kubernetes через terraform
+Установка kubernetes через terraform:
+
 ```shell
 git clone https://github.com/patsevanton/gitlab-job-labels-to-victorialogs
 export YC_FOLDER_ID='ваш folder_id'
@@ -58,16 +43,20 @@ terraform apply
 ```
 
 ## Установка Prometheus Operator CRDs
-Используем Prometheus Operator CRDs потому что еще очень много алертов находится в виде в формате `kind: PrometheusRule`.
+
+Используем Prometheus Operator CRDs потому что еще много алертов находится в формате `kind: PrometheusRule`.
+
 ```shell
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
-## Особенность интеграции telegram c oncall ???
-Для работы интеграции telegram c oncall необходимо чтобы oncall был доступен в интернете по HTTPS.
-Поэтому в чарте oncall присутствует следующий код:
+## Особенность интеграции telegram c OnCall
+
+Для работы интеграции telegram c OnCall необходимо, чтобы OnCall был доступен в интернете по HTTPS.  
+Поэтому в чарте OnCall присутствует следующий код:
+
 ```yaml
 ingress:
   annotations:
@@ -76,6 +65,7 @@ ingress:
 ```
 
 ## Установка OnCall helm чарта
+
 ```shell
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
@@ -87,8 +77,10 @@ helm upgrade --install --wait \
 ```
 
 ## Установка victoria-metrics-k8s-stack
+
 Добавим Helm репозиторий и установим VictoriaMetrics stack:
-```bash
+
+```shell
 helm repo add vm https://victoriametrics.github.io/helm-charts/
 helm repo update
 helm upgrade --install --wait \
@@ -99,13 +91,11 @@ helm upgrade --install --wait \
 ```
 
 
-### Создадим prometheus rule, которое будет алертить всегда для тестирования цепочки
+### Создание правила для тестирования цепочки
 
-Для тестирования всей цепочки прохождения алерта, логично начать с самого простого варианта — создать правило, которое
-будет алертить всегда, независимо от состояния системы. Это позволит убедиться, что весь процесс — от генерации события
-до получения уведомления в Telegram — работает корректно.
+Для тестирования всей цепочки алерта создайте простое правило, которое будет алертить всегда. Это позволит убедиться, что весь процесс — от генерации события до получения уведомления в Telegram — работает корректно.
 
-Создадим yaml-файл с Prometheus alert rule `always-fire-rule.yaml`:
+Создадим yaml-файл `always-fire-rule.yaml`:
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
@@ -129,41 +119,41 @@ spec:
             description: "Это тестовый алерт для проверки прохождения цепочки уведомлений."
 ```
 
-И применим его
+Применяем его:
+
 ```shell
 kubectl apply -f alert-always-fire.yaml
 ```
 
-Это правило срабатывает всегда, поскольку выражение `1 == 1` всегда истинно. Мы задаём небольшую продолжительность
-`for: 1m`, после чего алерт переходит в состояние firing. Внутри правила мы также указываем произвольные метки и
-аннотации, которые пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или получении
-в Telegram.
+Это правило срабатывает всегда, поскольку выражение `1 == 1` истинно. Мы задаём продолжительность `for: 1m`, после чего алерт переходит в состояние firing. Метки и аннотации пригодятся для идентификации тестового оповещения при просмотре в Grafana OnCall или Telegram.
 
-# Установка плагина OnCall
-Grafana будет доступна по адресу http://grafana.apatsev.org.ru
-Получение пароля grafana для admin юзера
+## Установка плагина OnCall в Grafana
+
+Grafana будет доступна по адресу: `http://grafana.apatsev.org.ru`.
+
+Получение пароля для admin юзера:
+
 ```shell
 kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | base64 --decode
 ```
 
-Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall 
-плагина. Итак, для настройки плагина OnCall через UI необходимо:
-- Открыть Grafana
-- Перейти `Home` -> `Administration` -> `Plugins and data` -> `Grafana OnCall` -> `Configuration`
-- Указать адрес oncall: `http://oncall-engine.oncall:8080`
-- Нажать connect
+Мне удалось настроить OnCall плагин только через UI. В конце будут приведены разные ошибки при попытке настройке Oncall плагина. Итак, для настройки плагина OnCall через UI необходимо:
 
-### Описание интеграции с Alertmanager
+1. Откройте Grafana.  
+2. Перейдите в:  
+   `Home` → `Administration` → `Plugins and data` → `Grafana OnCall` → `Configuration`.  
+3. Укажите адрес OnCall: `http://oncall-engine.oncall:8080`.  
+4. Нажмите Connect.
 
-Для интеграции Alertmanager с Grafana OnCall достаточно добавить в конфигурацию Alertmanager соответствующий
-получатель (receiver) с webhook-URL, предоставленным Grafana OnCall. Пример части values для victoria-metrics-k8s-stack
-выглядит следующим образом, где основной трафик алертов теперь идет в oncall:
+## Интеграция с Alertmanager
+Для интеграции Alertmanager с Grafana OnCall добавьте соответствующий получатель (receiver) с webhook-URL, предоставленным OnCall.  
+Пример части values для victoria-metrics-k8s-stack (трафик алертов идет в oncall):
 
 ```yaml
-      - name: 'oncall-webhook'
-        webhook_configs:
-          - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/'
-            send_resolved: true
+- name: 'oncall-webhook'
+  webhook_configs:
+    - url: 'http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/'
+      send_resolved: true
 ```
 
 В этом примере создаётся receiver (получатель) с именем `oncall-webhook`, который использует webhook для отправки
@@ -171,7 +161,8 @@ kubectl get secret vmks-grafana -n vmks -o jsonpath='{.data.admin-password}' | b
 настройках Grafana OnCall для вашей службы. Опция `send_resolved` позволяет уведомлять OnCall также о том, что
 алерт был устранён.
 
-### Подключение источника алертов
+## Подключение источника алертов
+
 Для интеграции Grafana OnCall c системой мониторинга, построенной на базе Prometheus и VictoriaMetrics, необходимо
 корректно связать цепочку генерации и доставки алертов:  
 Prometheus генерирует alert согласно заданным правилам и отправляет их в компонент vmalert (часть VictoriaMetrics),
@@ -186,22 +177,24 @@ Prometheus генерирует alert согласно заданным прав
 После этого все алерты, направленные на receiver `grafana-oncall`, будут поступать в Grafana OnCall для
 дальнейшей обработки.
 
-# Интеграции OnCall и Alertmanager
+### Интеграции OnCall и Alertmanager
 
-Необходимо создать integration
-В grafana переходим: `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
-Создаем `alertmanager` integration с именем `alertmanager-intergration`
-Получаем URL для интеграции с внешним адресом:
-```
-https://oncall.apatsev.org.ru/integrations/v1/alertmanager/token/
-```
+Создайте integration:
 
-Этот URL можно переделать с внутренним адресом:
-```
-http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/
-```
-Активируем webhook_configs в файле vmks-values.yaml и запускаем обновление victoria-metrics-k8s-stack
-```bash
+1. В Grafana: `Home` → `Alerts & IRM` → `OnCall` → `Integrations`.
+2. Создайте integration типа `alertmanager` с именем `alertmanager-intergration`.
+3. Получите URL для интеграции:
+
+   ```
+   https://oncall.apatsev.org.ru/integrations/v1/alertmanager/token/
+   ```
+
+   (Можно использовать внутренний адрес:  
+   `http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/`)
+
+4. Активируйте webhook_configs в файле `vmks-values.yaml` и обновите victoria-metrics-k8s-stack:
+
+```shell
 helm upgrade --install --wait \
     vmks vm/victoria-metrics-k8s-stack \
     --namespace vmks --create-namespace \
@@ -215,46 +208,41 @@ helm upgrade --install --wait \
 - Указать адрес oncall: `http://oncall-engine.oncall:8080`
 - Нажать connect
 
-# Настройка расписания дежурств
-Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Schedules`
-Нажимаем `New schedule` и выбираем `Set up on-call rotation schedule`
-Создаем новое расписание дежурств с названием `demo-schedule`
-Нажимаем `Add rotation`, выбираем weeks и активируем `Mask by weekdays` и выбираем `Mo`,`Tu`,`We`,`Th`,`Fr`.
-Указываем юзера. В данном случае юзер admin.
+## Настройка расписания дежурств
 
-# Настройка цепочки эскалации
-Переходим в grafana: `Home` -> `Alerts & IRM` -> `OnCall` -> `Escalation chains`
-Создаем новую цепочку эскалации: `demo-escalation-chain`: `notify users from on-call schedule`.
-И выбираем `demo-schedule`.
+В Grafana:  
+`Home` → `Alerts & IRM` → `OnCall` → `Schedules`  
+Создайте новое расписание "demo-schedule", добавьте ротацию, выберите `weeks`, активируйте маску по дням (`Mo`, `Tu`, `We`, `Th`, `Fr`), укажите пользователя (например, admin).
 
-# Подключение цепочки эскалации к integration:
-Переходим в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Integrations`
-Открываем `alertmanager-intergration`, добавляем route, указываем в шаблоне:
+## Настройка цепочки эскалации
+
+В Grafana:  
+`Home` → `Alerts & IRM` → `OnCall` → `Escalation chains`  
+Создайте цепочку эскалации `demo-escalation-chain` с оповещением пользователей из расписания, выберите `demo-schedule`.
+
+## Подключение цепочки эскалации к integration
+
+В Grafana:  
+`Home` → `Alerts & IRM` → `OnCall` → `Integrations`  
+Откройте `alertmanager-intergration`, добавьте route:
+
 ```
 {{ payload.commonLabels.severity == "critical" }}
 ```
-Подключаем цепочку эскалации `demo-escalation-chain`.
+
+Подключите цепочку эскалации `demo-escalation-chain`.
 
 ## Настройка Grafana OnCall для оповещения в Telegram
 
-# Указание telegram token
-Если вы активируйте telegram polling и не укажите telegram token, то будут ошибки.
-Читаем логи telegram-polling:
-```shell
-kubectl logs -n oncall -l app.kubernetes.io/component=telegram-polling -c telegram-polling
-```
-Ошибка:
-```
-telegram.error.InvalidToken: Invalid token
-```
+### Указание telegram token
 
-Поэтому прописываем сначала прописываем telegram token в env в oncall-values.yaml либо переходим 
-в `Home` -> `Alerts & IRM` -> `OnCall` -> `Settings` в ENV Variable, правим `TELEGRAM_TOKEN`
-а затем активируем telegram polling в oncall-values.yaml.
+Для telegram polling обязательно указывайте telegram token — иначе будут ошибки (`telegram.error.InvalidToken: Invalid token`). Для этого пропишите telegram token в env (`oncall-values.yaml`) или задайте через UI:  
+`Home` → `Alerts & IRM` → `OnCall` → `Settings` → ENV Variable → `TELEGRAM_TOKEN`
 
 ![](edit_telegram_token_in_env_var.png)
 
-Активируйте telegram polling и обновите Oncall
+Далее активируйте telegram polling и обновите OnCall:
+
 ```shell
 helm upgrade --install --wait \
     oncall grafana/oncall \
@@ -264,31 +252,27 @@ helm upgrade --install --wait \
 ```
 
 ### Получение алертов в личных сообщениях Telegram
-Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить, 
-решить, замолчать оповещение) прямо из чата:
 
-- Перейдите в grafana `Home` -> `Alerts & IRM` -> `OnCall` -> `Users`.
-- Нажимаем `View my profile`
-- Найдите настройку Telegram, нажмите “Connect account”.
-- Для автоматического подключения нажмите “Connect automatically”.
-- Скопируйте секрет и вставьте в вашем Telegram боте
+Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить,
+решить, перевести оповещение в безвучный режим ) прямо из чата:
 
-![](aprove_telegram_bot.png)
-
-- В `Default Notifications` и `Important Notifications` укажите Telegram как способ оповещения по умолчанию.
+1. В Grafana:  
+   `Home` → `Alerts & IRM` → `OnCall` → `Users`.
+2. Нажмите "View my profile".
+3. Найдите настройку Telegram, нажмите "Connect account".
+4. Для автоматического подключения — "Connect automatically", скопируйте секрет и вставьте в Telegram боте.
+5. Укажите Telegram в `Default Notifications` и `Important Notifications`.
 
 ![](default_notifications_to_telegram.png)
 
-# Aлерт в telegram
-Aлерт в telegram выглядит вот так
-![](alert_in_telegram.png)
-Вы можете нажать resolve, если починили проблему или можете загрушить алерт.
+
+## Алерт в telegram
+
+Алерт в telegram выглядит так:  
+![alert_in_telegram.png](alert_in_telegram.png)  
+Можно нажать resolve или перевести оповещение в безвучный режим.
+
 
 ## Заключение
-Интеграция Grafana OnCall с Telegram — это быстрый способ организовать современную командную коммуникацию по 
-инцидентам без лишней бюрократии. Grafana OnCall предоставляет централизованную платформу для эффективного 
-управления алертами и инцидентами. Простота интеграции с популярными инструментами мониторинга и коммуникационными 
-платформами, такими как Telegram, делает этот инструмент очень гибким. Благодаря OnCall команда может не переживать 
-о том, что важные события останутся без внимания — каждый инцидент быстро доходит до ответственного человека. 
-Интерфейс OnCall интуитивно понятен, а масштабирование и поддержка настроек пользователей позволяют оптимизировать 
-рабочие процессы под каждую команду.
+
+Интеграция Grafana OnCall с Telegram — это быстрый способ организовать современную командную коммуникацию по инцидентам без бюрократии. Grafana OnCall предоставляет централизованную платформу для эффективного управления алертами и инцидентами. Простота интеграции с инструментами мониторинга и такими платформами, как Telegram, делает инструмент гибким и удобным: каждый инцидент доходит до ответственного сотрудника. Интерфейс интуитивно понятен и поддерживает масштабирование под любые команды.
