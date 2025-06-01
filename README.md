@@ -90,7 +90,6 @@ helm upgrade --install --wait \
     --values vmks-values.yaml
 ```
 
-
 ### Создание правила для тестирования цепочки
 
 Для тестирования всей цепочки алерта создайте простое правило, которое будет алертить всегда. Это позволит убедиться, что весь процесс — от генерации события до получения уведомления в Telegram — работает корректно.
@@ -189,7 +188,7 @@ Prometheus генерирует alert согласно заданным прав
    https://oncall.apatsev.org.ru/integrations/v1/alertmanager/token/
    ```
 
-   (Можно использовать внутренний адрес:  
+   (Используйте внутренний адрес:
    `http://oncall-engine.oncall:8080/integrations/v1/alertmanager/token/`)
 
 4. Активируйте webhook_configs в файле `vmks-values.yaml` и обновите victoria-metrics-k8s-stack:
@@ -212,7 +211,7 @@ helm upgrade --install --wait \
 
 В Grafana:  
 `Home` → `Alerts & IRM` → `OnCall` → `Schedules`  
-Создайте новое расписание "demo-schedule", добавьте ротацию, выберите `weeks`, активируйте маску по дням (`Mo`, `Tu`, `We`, `Th`, `Fr`), укажите пользователя (например, admin).
+Создайте новое расписание `demo-schedule`, добавьте ротацию, выберите `weeks`, активируйте маску по дням (`Mo`, `Tu`, `We`, `Th`, `Fr`), укажите пользователя (например, admin).
 
 ## Настройка цепочки эскалации
 
@@ -237,7 +236,7 @@ helm upgrade --install --wait \
 ### Указание telegram token
 
 Для telegram polling обязательно указывайте telegram token — иначе будут ошибки (`telegram.error.InvalidToken: Invalid token`). Для этого пропишите telegram token в env (`oncall-values.yaml`) или задайте через UI:  
-`Home` → `Alerts & IRM` → `OnCall` → `Settings` → ENV Variable → `TELEGRAM_TOKEN`
+`Home` → `Alerts & IRM` → `OnCall` → `Settings` → `ENV Variable` → `TELEGRAM_TOKEN`
 
 ![](edit_telegram_token_in_env_var.png)
 
@@ -251,10 +250,12 @@ helm upgrade --install --wait \
     --values oncall-values.yaml
 ```
 
+При установке Oncall plugin версии 1.3.118 отсутствует возможность редактировать `TELEGRAM_TOKEN` через `ENV Variable`
+
 ### Получение алертов в личных сообщениях Telegram
 
 Чтобы получать нотификации в своих личных сообщениях Telegram и иметь возможность выполнять действия (подтвердить,
-решить, перевести оповещение в безвучный режим ) прямо из чата:
+решить, перевести оповещение в безвучный режим) прямо из чата:
 
 1. В Grafana:  
    `Home` → `Alerts & IRM` → `OnCall` → `Users`.
