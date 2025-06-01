@@ -373,6 +373,10 @@ kubectl apply -f alert-always-fire.yaml
 *  [PluginAppClientSecret not set in config](https://github.com/grafana/oncall/issues/5410)
 *  [Not able to connect to OnCall Plugin](https://github.com/grafana/oncall/issues/5406)
 
+
+## Исходный код
+Исходный код находится здесь: https://github.com/patsevanton/victoriametrics-alertmanager-grafana-oncall-telegram
+
 ## Заключение
 
 Интеграция Alertmanager с Grafana OnCall и последующая доставка уведомлений в Telegram представляют собой мощное и гибкое решение для управления инцидентами в современных IT-системах. Такой подход позволяет отойти от хаотичных оповещений в общие чаты и внедрить структурированный процесс с четким распределением ответственности, управлением графиками дежурств и автоматическими эскалациями.
