@@ -281,6 +281,7 @@ kubectl apply -f alert-always-fire.yaml
 4.  Добавьте шаги эскалации:
    *   **Шаг 1:** Уведомить пользователей из расписания `demo-critical-alerts-schedule` через их предпочтительные каналы.
    *   **Шаг 2:** Уведомить пользователя через их предпочтительные каналы.
+   *   **Шаг 3:** Остальные шаги вы можете настроить сами.
 5.  Настройте для каждого шага тип уведомления (например, Telegram, SMS, звонок) и задержку перед переходом к следующему шагу.
 6.  Сохраните цепочку эскалации.
 
@@ -363,8 +364,14 @@ kubectl apply -f alert-always-fire.yaml
 Примерный вид сообщения и доступные действия зависят от версии Grafana OnCall и конфигурации бота.
 ![alert_in_telegram.png](alert_in_telegram.png)
 
-## Проблемы разных версий Oncall
-*  При установке плагина OnCall версии 1.3.118 отсутствовала возможность редактировать `TELEGRAM_TOKEN` через `ENV Variable` в UI.
+## Проблемы разных версий Oncall, которые я встретил при установке:
+*  [Grafana Oncall Plugin not connected](https://github.com/grafana/oncall/issues/5100)
+*  [Oncall can't connect to external grafana](https://github.com/grafana/oncall/issues/4829)
+*  [External Grafana couldn't connect to grafana oncall.](https://github.com/grafana/oncall/issues/1045)
+*  [PluginAppClientSecret not set in config](https://github.com/grafana/oncall/issues/5202)
+*  [The oncall plugin does not connect.](https://github.com/grafana/oncall/issues/5475)
+*  [PluginAppClientSecret not set in config](https://github.com/grafana/oncall/issues/5410)
+*  [Not able to connect to OnCall Plugin](https://github.com/grafana/oncall/issues/5406)
 
 ## Заключение
 

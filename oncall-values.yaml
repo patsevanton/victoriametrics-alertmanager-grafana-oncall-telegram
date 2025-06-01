@@ -1,4 +1,3 @@
-base_url: oncall.apatsev.org.ru
 celery:
   worker_shutdown_interval: ""
 #telegramPolling:
@@ -12,10 +11,6 @@ env:
     value: "False"
 #  - name: TELEGRAM_TOKEN
 #    value: "telegram token полученный от BotFather"
-ingress:
-  annotations:
-    cert-manager.io/issuer: "letsencrypt-prod"
-    kubernetes.io/ingress.class: nginx
 ingress-nginx:
   enabled: false
 database:
