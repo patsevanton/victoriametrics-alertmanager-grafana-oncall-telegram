@@ -82,21 +82,6 @@ helm repo update
 helm upgrade --install --wait prometheus-operator-crds prometheus-community/prometheus-operator-crds --version 20.0.0
 ```
 
-## Особенность интеграции Telegram c Grafana OnCall: Публичный доступ по HTTPS
-
-Важным требованием для корректной работы двусторонней интеграции Grafana OnCall с Telegram (особенно для функций, требующих ответа от Telegram, например, при использовании команд в боте) является доступность вашего экземпляра Grafana OnCall из сети Интернет по протоколу HTTPS. Telegram-серверы должны иметь возможность отправлять обратно запросы (webhook callbacks) на ваш OnCall.
-
-Если вы разворачиваете Grafana OnCall в Kubernetes, для обеспечения внешнего доступа обычно используется Ingress-контроллер и Cert-Manager для автоматического выпуска и обновления SSL/TLS сертификатов (например, от Let's Encrypt).
-
-Пример конфигурации Ingress в Helm-чарте для Grafana OnCall может выглядеть следующим образом (фрагмент `values.yaml`):
-
-```yaml
-ingress:
-  annotations:
-    cert-manager.io/issuer: "letsencrypt-prod"
-    kubernetes.io/ingress.class: nginx
-```
-
 ## Установка Grafana OnCall с использованием Helm-чарта
 
 Grafana OnCall удобно устанавливать и управлять с помощью официального Helm-чарта.
@@ -116,6 +101,39 @@ Grafana OnCall удобно устанавливать и управлять с 
         --namespace oncall --create-namespace \
         --version 1.3.62 \
         --values oncall-values.yaml
+    ```
+    Содержимое oncall-values.yaml
+    ```yaml
+    celery:
+      worker_shutdown_interval: ""
+    #telegramPolling:
+    #  enabled: true
+    env:
+      - name: DANGEROUS_WEBHOOKS_ENABLED
+        value: 'True'
+      - name: GRAFANA_CLOUD_NOTIFICATIONS_ENABLED
+        value: 'False'
+      - name: SEND_ANONYMOUS_USAGE_STATS
+        value: "False"
+    #  - name: TELEGRAM_TOKEN
+    #    value: "telegram token полученный от BotFather"
+    ingress-nginx:
+      enabled: false
+    database:
+      type: postgresql
+    mariadb:
+      enabled: false
+    postgresql:
+      auth:
+        database: oncall
+        existingSecret:
+      enabled: true
+    broker:
+      type: rabbitmq
+    grafana:
+      enabled: false
+    externalGrafana:
+      url: http://grafana.apatsev.org.ru
     ```
 
 ## Установка victoria-metrics-k8s-stack
@@ -137,6 +155,41 @@ Grafana OnCall удобно устанавливать и управлять с 
         --namespace vmks --create-namespace \
         --version 0.46.0 \
         --values vmks-values.yaml
+    ```
+    Содержимое vmks-values.yaml
+    ```yaml
+    grafana:
+      grafana.ini:
+        feature_toggles:
+          accessControlOnCall: false
+      plugins:
+        - https://grafana.com/api/plugins/grafana-oncall-app/versions/1.3.62/download;grafana-oncall-app
+      ingress:
+        ingressClassName: nginx
+        enabled: true
+        hosts:
+          - grafana.apatsev.org.ru
+    alertmanager:
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['job', 'alertname', 'severity']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 1h
+          receiver: 'default-receiver' # Ваш основной ресивер, если есть
+          routes:
+            - receiver: 'oncall-webhook-receiver'
+              matchers: # Опционально: можно указать, какие алерты слать в OnCall
+                - severity =~ "critical|warning" # Например, только критичные и предупреждения
+              continue: true # Позволяет алерту идти и в другие ресиверы, если нужно
+        receivers:
+          - name: 'default-receiver' # Пример вашего обычного ресивера
+          - name: 'oncall-webhook-receiver'
+            webhook_configs:
+              - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/token/' # Вставьте сюда ВНУТРЕННИЙ URL из OnCall
+                send_resolved: true # Очень важно отправлять информацию о разрешении алерта
     ```
 
 ### Создание тестового правила алертинга
@@ -215,24 +268,6 @@ kubectl apply -f alert-always-fire.yaml
     Пример фрагмента для `vmks-values.yaml` (в секции `alertmanager.config` или аналогичной, синтаксис может немного отличаться в зависимости от версии чарта):
 
     ```yaml
-    alertmanager:
-      config:
-        global:
-          resolve_timeout: 5m
-        route:
-          group_by: ['job', 'alertname', 'severity']
-          group_wait: 30s
-          group_interval: 5m
-          repeat_interval: 1h
-          receiver: 'default-receiver' # Ваш основной ресивер, если есть
-          routes:
-            - receiver: 'oncall-webhook-receiver'
-              matchers: # Опционально: можно указать, какие алерты слать в OnCall
-                - severity =~ "critical|warning" # Например, только критичные и предупреждения
-              continue: true # Позволяет алерту идти и в другие ресиверы, если нужно
-        receivers:
-          - name: 'default-receiver' # Пример вашего обычного ресивера
-            # ... (ваши другие конфигурации, например, email или Slack)
           - name: 'oncall-webhook-receiver'
             webhook_configs:
               - url: 'http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/your_unique_token_here/' # Вставьте сюда ВНУТРЕННИЙ URL из OnCall
